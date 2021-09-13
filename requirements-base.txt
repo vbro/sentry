@@ -81,7 +81,7 @@ grpcio==1.35.0; python_version == '3.6'
 grpcio==1.39.0; python_version > '3.6'
 
 # not directly used, but provides a speedup for redis
-hiredis==0.3.1
+hiredis==2.0.0
 
 # not directly used, but pinned for at least semaphore/symbolic
 cffi==1.14.5
