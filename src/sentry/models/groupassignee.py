@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import Optional, TYPE_CHECKING, Union
 
 from django.conf import settings
 from django.db import models
@@ -77,7 +77,7 @@ class GroupAssigneeManager(BaseManager):
 
         return {"new_assignment": created, "updated_assignment": bool(not created and affected)}
 
-    def deassign(self, group, acting_user=None):
+    def deassign(self, group: "Group", acting_user: Optional["User"] = None) -> None:
         from sentry import features
         from sentry.integrations.utils import sync_group_assignee_outbound
         from sentry.models import Activity
@@ -86,10 +86,7 @@ class GroupAssigneeManager(BaseManager):
         self.filter(group=group).delete()
 
         if affected > 0:
-            activity = Activity.objects.create(
-                project=group.project, group=group, type=Activity.UNASSIGNED, user=acting_user
-            )
-            activity.send_notification()
+            Activity.objects.create_group_activity(group, ActivityType.UNASSIGNED, user=acting_user)
             metrics.incr("group.assignee.change", instance="deassigned", skip_internal=True)
             # sync Sentry assignee to external issues
             if features.has(
