@@ -2,11 +2,10 @@ import logging
 from typing import TYPE_CHECKING, Mapping, Optional, Sequence
 
 from sentry import features
-from sentry.models import GroupAssignee
 from sentry.tasks.integrations import sync_assignee_outbound
 
 if TYPE_CHECKING:
-    from sentry.models import Group, Integration, Organization
+    from sentry.models import Group, GroupAssignee, Integration, Organization, Project, User
 
 
 def where_should_sync(
@@ -54,15 +53,14 @@ def sync_group_assignee_inbound(
     assign linked groups to matching users. Checks project membership.
     Returns a list of groups that were successfully assigned.
     """
-    from sentry.models import Group, Project, User
 
     logger = logging.getLogger(f"sentry.integrations.{integration.provider}")
 
     orgs_with_sync_enabled = where_should_sync(integration, "inbound_assignee")
-    affected_groups = (
-        Group.objects.get_groups_by_external_issue(integration, external_issue_key)
-        .filter(project__organization__in=orgs_with_sync_enabled)
-        .select_related("project")
+    affected_groups = Group.objects.get_groups_by_external_issue(
+        integration,
+        orgs_with_sync_enabled,
+        external_issue_key,
     )
     if not affected_groups:
         return []
@@ -95,7 +93,9 @@ def sync_group_assignee_inbound(
 
 
 def sync_group_assignee_outbound(
-    group: "Group", user_id: Optional[int], assign: bool = True
+    group: "Group",
+    user_id: Optional[int],
+    assign: bool = True,
 ) -> None:
     from sentry.models import GroupLink
 
