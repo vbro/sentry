@@ -299,7 +299,8 @@ class NotificationsManager(BaseManager["NotificationSetting"]):
 
     def filter_to_accepting_recipients(
         self,
-        project: "Project",
+        type: NotificationSettingTypes,
+        parent: Union["Organization", "Project"],
         recipients: Iterable[Union["Team", "User"]],
     ) -> Mapping[ExternalProviders, Iterable[Union["Team", "User"]]]:
         """
@@ -307,15 +308,14 @@ class NotificationsManager(BaseManager["NotificationSetting"]):
         are subscribed to alerts. We check both the project level settings and
         global default settings.
         """
-        notification_settings = self.get_for_recipient_by_parent(
-            NotificationSettingTypes.ISSUE_ALERTS, parent=project, recipients=recipients
-        )
+        notification_settings = self.get_for_recipient_by_parent(type, parent, recipients)
         notification_settings_by_recipient = transform_to_notification_settings_by_recipient(
             notification_settings, recipients
         )
         mapping = defaultdict(set)
+        organization = parent if isinstance(parent, Organization) else parent.organization
         should_use_slack_automatic = features.has(
-            "organizations:notification-slack-automatic", project.organization
+            "organizations:notification-slack-automatic", organization
         )
         for recipient in recipients:
             providers = where_should_recipient_be_notified(
@@ -339,7 +339,9 @@ class NotificationsManager(BaseManager["NotificationSetting"]):
 
         user_ids = project.member_set.values_list("user", flat=True)
         users = User.objects.filter(id__in=user_ids)
-        return self.filter_to_accepting_recipients(project, users)
+        return self.filter_to_accepting_recipients(
+            NotificationSettingTypes.ISSUE_ALERTS, project, users
+        )
 
     def update_settings_bulk(
         self,

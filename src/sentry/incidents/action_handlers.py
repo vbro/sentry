@@ -13,6 +13,7 @@ from sentry.incidents.models import (
     TriggerStatus,
 )
 from sentry.models.notificationsetting import NotificationSetting
+from sentry.notifications.types import NotificationSettingTypes
 from sentry.types.integrations import ExternalProviders
 from sentry.utils import json
 from sentry.utils.email import MessageBuilder, get_email_addresses
@@ -64,6 +65,7 @@ class EmailActionHandler(ActionHandler):
 
         elif self.action.target_type == AlertRuleTriggerAction.TargetType.TEAM.value:
             users = NotificationSetting.objects.filter_to_accepting_recipients(
+                NotificationSettingTypes.ISSUE_ALERTS,
                 self.project,
                 {member.user for member in target.member_set},
             )[ExternalProviders.EMAIL]

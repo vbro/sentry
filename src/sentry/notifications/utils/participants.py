@@ -337,10 +337,13 @@ def get_recipients_by_provider(
     project: Project, recipients: Iterable[Union["Team", "User"]]
 ) -> Mapping[ExternalProviders, Iterable[Union["Team", "User"]]]:
     """Get the lists of recipients that should receive an Issue Alert by ExternalProvider."""
+    type = NotificationSettingTypes.ISSUE_ALERTS
     teams, users = partition_recipients(recipients)
 
     # First evaluate the teams.
-    teams_by_provider = NotificationSetting.objects.filter_to_accepting_recipients(project, teams)
+    teams_by_provider = NotificationSetting.objects.filter_to_accepting_recipients(
+        type, project, teams
+    )
 
     # Teams cannot receive emails so omit EMAIL settings.
     teams_by_provider = {
@@ -353,6 +356,8 @@ def get_recipients_by_provider(
     users = set(users).union(get_users_from_team_fall_back(teams, teams_by_provider))
 
     # Repeat for users.
-    users_by_provider = NotificationSetting.objects.filter_to_accepting_recipients(project, users)
+    users_by_provider = NotificationSetting.objects.filter_to_accepting_recipients(
+        type, project, users
+    )
 
     return combine_recipients_by_provider(teams_by_provider, users_by_provider)
