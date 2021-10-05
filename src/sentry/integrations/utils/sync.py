@@ -6,7 +6,7 @@ from sentry.models import GroupAssignee
 from sentry.tasks.integrations import sync_assignee_outbound
 
 if TYPE_CHECKING:
-    from sentry.models import Group, GroupLink, Integration, Organization, Project, User
+    from sentry.models import Group, Integration, Organization, Project, User
 
 
 def where_should_sync(
@@ -98,6 +98,8 @@ def sync_group_assignee_inbound(
 def sync_group_assignee_outbound(
     group: "Group", user_id: Optional[int], assign: bool = True
 ) -> None:
+    from sentry.models import GroupLink
+
     external_issue_ids = GroupLink.objects.filter(
         project_id=group.project_id, group_id=group.id, linked_type=GroupLink.LinkedType.issue
     ).values_list("linked_id", flat=True)
