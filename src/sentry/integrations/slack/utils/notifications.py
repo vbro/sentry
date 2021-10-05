@@ -115,7 +115,8 @@ def build_notification_footer(
             return f"{notification.release.projects.all()[0].slug} | <{settings_url}|Notification Settings>"
         return f"<{settings_url}|Notification Settings>"
 
-    footer: str = notification.project.slug
+    parent = getattr(notification, "project", notification.organization)
+    footer: str = parent.slug
     group = getattr(notification, "group", None)
     latest_event = group.get_latest_event() if group else None
     environment = None
