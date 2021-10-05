@@ -36,7 +36,7 @@ from sentry.utils.numbers import base32_decode, base32_encode
 from sentry.utils.strings import strip, truncatechars
 
 if TYPE_CHECKING:
-    from sentry.models import Integration, Team, User
+    from sentry.models import Integration, Organization, Team, User
 
 logger = logging.getLogger(__name__)
 
@@ -289,20 +289,24 @@ class GroupManager(BaseManager):
     def get_groups_by_external_issue(
         self,
         integration: "Integration",
+        organizations: Sequence["Organization"],
         external_issue_key: str,
     ) -> QuerySet:
         from sentry.models import ExternalIssue, GroupLink
 
+        external_issue_subquery = ExternalIssue.objects.get_for_integration(
+            integration, external_issue_key
+        ).values_list("id", flat=True)
+
+        group_link_subquery = GroupLink.objects.filter(
+            linked_id__in=external_issue_subquery
+        ).values_list("group_id", flat=True)
+
         return self.filter(
-            id__in=GroupLink.objects.filter(
-                linked_id__in=ExternalIssue.objects.filter(
-                    key=external_issue_key,
-                    integration_id=integration.id,
-                    organization_id__in=integration.organizations.values_list("id", flat=True),
-                ).values_list("id", flat=True)
-            ).values_list("group_id", flat=True),
-            project__organization_id__in=integration.organizations.values_list("id", flat=True),
-        )
+            id__in=group_link_subquery,
+            project__organization__in=organizations,
+            project__organization__organizationintegration__integration=integration,
+        ).select_related("project")
 
     def update_group_status(
         self, groups: Sequence["Group"], status: GroupStatus, activity_type: ActivityType
