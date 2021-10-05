@@ -48,7 +48,6 @@ def get_subject_with_prefix(
     context: Optional[Mapping[str, Any]] = None,
     mail_option_key: Optional[str] = None,
 ) -> bytes:
-
     prefix = build_subject_prefix(notification.project, mail_option_key)
     return f"{prefix}{notification.get_subject(context)}".encode()
 
@@ -84,6 +83,7 @@ def log_message(notification: BaseNotification, recipient: Union["Team", "User"]
         extra.update({"activity": notification.activity})
 
     logger.info("mail.adapter.notify.mail_user", extra=extra)
+    notification.record_notification_sent(recipient, ExternalProviders.EMAIL)
 
 
 def get_context(

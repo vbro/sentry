@@ -61,6 +61,17 @@ class BaseNotification(abc.ABC):
     def get_unsubscribe_key(self) -> Optional[Tuple[str, int, Optional[str]]]:
         return None
 
+    def record_notification_sent(
+        self, recipient: Union["Team", "User"], provider: ExternalProviders, **kwargs: Any
+    ) -> None:
+        analytics.record(
+            f"integrations.{provider.value}.notification_sent",
+            actor_id=recipient.id,
+            category=self.get_category(),
+            organization_id=self.organization.id,
+            **kwargs,
+        )
+
 
 class ProjectNotification(BaseNotification, abc.ABC):
     def __init__(self, project: "Project") -> None:
@@ -69,3 +80,8 @@ class ProjectNotification(BaseNotification, abc.ABC):
 
     def get_project_link(self) -> str:
         return str(absolute_uri(f"/{self.organization.slug}/{self.project.slug}/"))
+
+    def record_notification_sent(
+        self, recipient: Union["Team", "User"], provider: ExternalProviders, **kwargs: Any
+    ) -> None:
+        super().record_notification_sent(recipient, provider, project_id=self.project.id, **kwargs)
