@@ -279,7 +279,6 @@ class GroupManager(BaseManager):
         )
         return self.filter(id__in={event.group_id for event in events})
 
-
     def get_groups_by_external_issue(
         self,
         integration: "Integration",

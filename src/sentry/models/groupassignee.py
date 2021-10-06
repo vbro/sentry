@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from django.conf import settings
 from django.db import models
