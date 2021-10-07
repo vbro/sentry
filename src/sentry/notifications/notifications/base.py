@@ -65,7 +65,7 @@ class BaseNotification(abc.ABC):
         self, recipient: Union["Team", "User"], provider: ExternalProviders, **kwargs: Any
     ) -> None:
         analytics.record(
-            f"integrations.{provider.value}.notification_sent",
+            f"integrations.{provider.name}.notification_sent",
             actor_id=recipient.id,
             category=self.get_category(),
             organization_id=self.organization.id,

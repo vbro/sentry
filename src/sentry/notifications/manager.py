@@ -308,6 +308,8 @@ class NotificationsManager(BaseManager["NotificationSetting"]):
         are subscribed to alerts. We check both the project level settings and
         global default settings.
         """
+        from sentry.models import Organization
+
         notification_settings = self.get_for_recipient_by_parent(type, parent, recipients)
         notification_settings_by_recipient = transform_to_notification_settings_by_recipient(
             notification_settings, recipients
