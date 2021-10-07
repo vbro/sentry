@@ -80,8 +80,8 @@ class GroupAssigneeManager(BaseManager):
 
     def deassign(self, group, acting_user=None):
         from sentry import features
-        from sentry.models import Activity
         from sentry.integrations.utils import sync_group_assignee_outbound
+        from sentry.models import Activity
 
         affected = self.filter(group=group)[:1].count()
         self.filter(group=group).delete()

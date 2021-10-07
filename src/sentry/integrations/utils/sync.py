@@ -1,5 +1,5 @@
 import logging
-from typing import Mapping, Optional, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping, Optional, Sequence
 
 from sentry import features
 from sentry.models import GroupAssignee
@@ -27,11 +27,13 @@ def where_should_sync(
         organization
         for organization in integration.organizations.filter(**kwargs)
         if features.has("organizations:integrations-issue-sync", organization)
-           and integration.get_installation(organization.id).should_sync(key)
+        and integration.get_installation(organization.id).should_sync(key)
     ]
 
 
-def get_user(projects_by_user: Mapping["User", Sequence["Project"]], group: "Group") -> Optional["User"]:
+def get_user(
+    projects_by_user: Mapping["User", Sequence["Project"]], group: "Group"
+) -> Optional["User"]:
     users = [
         user
         for user, projects in projects_by_user.items()
@@ -93,7 +95,9 @@ def sync_group_assignee_inbound(
     return groups_assigned
 
 
-def sync_group_assignee_outbound(group: "Group", user_id: Optional[int], assign: bool = True) -> None:
+def sync_group_assignee_outbound(
+    group: "Group", user_id: Optional[int], assign: bool = True
+) -> None:
     external_issue_ids = GroupLink.objects.filter(
         project_id=group.project_id, group_id=group.id, linked_type=GroupLink.LinkedType.issue
     ).values_list("linked_id", flat=True)
