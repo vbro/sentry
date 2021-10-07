@@ -1,4 +1,3 @@
-import logging
 from typing import TYPE_CHECKING, Optional, Union
 
 from django.conf import settings
