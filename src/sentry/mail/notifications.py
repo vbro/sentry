@@ -19,9 +19,12 @@ logger = logging.getLogger(__name__)
 
 def get_headers(notification: BaseNotification) -> Mapping[str, Any]:
     headers = {
-        "X-Sentry-Project": notification.project.slug,
         "X-SMTPAPI": json.dumps({"category": notification.get_category()}),
     }
+
+    project = getattr(notification, "project", None)
+    if project:
+        headers["X-Sentry-Project"] = project.slug
 
     group = getattr(notification, "group", None)
     if group:
@@ -48,7 +51,10 @@ def get_subject_with_prefix(
     context: Optional[Mapping[str, Any]] = None,
     mail_option_key: Optional[str] = None,
 ) -> bytes:
-    prefix = build_subject_prefix(notification.project, mail_option_key)
+    prefix = ""
+    project = getattr(notification, "project", None)
+    if project:
+        prefix = build_subject_prefix(project, mail_option_key)
     return f"{prefix}{notification.get_subject(context)}".encode()
 
 
@@ -64,10 +70,11 @@ def get_unsubscribe_link(
 
 
 def log_message(notification: BaseNotification, recipient: Union["Team", "User"]) -> None:
-    extra = {
-        "project_id": notification.project.id,
-        "actor_id": recipient.actor_id,
-    }
+    extra = {"actor_id": recipient.actor_id}
+    project = getattr(notification, "project", None)
+    if project:
+        extra["project_id"] = project.id
+
     group = getattr(notification, "group", None)
     if group:
         extra.update({"group": group.id})
@@ -139,5 +146,9 @@ def send_notification_as_email(
             reply_reference=notification.get_reply_reference(),
             type=notification.get_type(),
         )
-        msg.add_users([recipient.id], project=notification.project)
+        kwargs = {}
+        project = getattr(notification, "project", None)
+        if project:
+            kwargs["project"] = project
+        msg.add_users([recipient.id], **kwargs)
         msg.send_async()
