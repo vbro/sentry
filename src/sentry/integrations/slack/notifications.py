@@ -2,8 +2,8 @@ import logging
 from collections import defaultdict
 from typing import Any, Iterable, Mapping, MutableMapping, Optional, Union
 
-from sentry.integrations.slack.client import SlackClient  # NOQA
-from sentry.integrations.slack.message_builder.notifications import build_notification_attachment
+from sentry.integrations.slack.client import SlackClient
+from sentry.integrations.slack.message_builder.notifications import SlackNotificationsMessageBuilder
 from sentry.models import ExternalActor, Identity, Integration, Organization, Team, User
 from sentry.notifications.notifications.activity.base import ActivityNotification
 from sentry.notifications.notifications.base import BaseNotification
@@ -140,7 +140,7 @@ def send_notification_as_slack(
             )
         extra_context = (extra_context_by_user_id or {}).get(recipient.id, {})
         context = get_context(notification, recipient, shared_context, extra_context)
-        attachment = [build_notification_attachment(notification, context, recipient)]
+        attachment = [SlackNotificationsMessageBuilder(notification, context, recipient).build()]
         for channel, token in tokens_by_channel.items():
             # unfurl_links and unfurl_media are needed to preserve the intended message format
             # and prevent the app from replying with help text to the unfurl

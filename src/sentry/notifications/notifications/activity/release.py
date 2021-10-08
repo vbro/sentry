@@ -1,4 +1,4 @@
-from typing import Any, Iterable, List, Mapping, MutableMapping, Optional, Set, Union
+from typing import Any, Iterable, List, Mapping, MutableMapping, Optional, Sequence, Set, Union
 
 from sentry_relay import parse_release
 
@@ -19,6 +19,7 @@ from sentry.types.integrations import ExternalProviders
 from sentry.utils.compat import zip
 from sentry.utils.http import absolute_uri
 
+from ..base import MessageAction
 from .base import ActivityNotification
 
 
@@ -122,6 +123,17 @@ class ReleaseActivityNotification(ActivityNotification):
         elif len(self.projects) > 1:
             projects_text = " for these projects"
         return f"Release {self.version_parsed} was deployed to {self.environment}{projects_text}"
+
+    def get_message_actions(self) -> Sequence[MessageAction]:
+        return [
+            MessageAction(
+                label=project.slug,
+                url=absolute_uri(
+                    f"/organizations/{project.organization.slug}/releases/{self.release.version}/?project={project.id}&unselectedSeries=Healthy/"
+                ),
+            )
+            for project in self.projects
+        ]
 
     def get_filename(self) -> str:
         return "activity/release"

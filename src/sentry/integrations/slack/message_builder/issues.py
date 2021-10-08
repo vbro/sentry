@@ -70,7 +70,10 @@ def get_assignee(group: Group) -> Optional[Mapping[str, str]]:
         return None
 
 
-def build_attachment_title(obj: Union[Group, Event]) -> str:
+def build_attachment_title(obj: Optional[Union[Group, Event]]) -> str:
+    if not obj:
+        return ""
+
     ev_metadata = obj.get_event_metadata()
     ev_type = obj.get_event_type()
 

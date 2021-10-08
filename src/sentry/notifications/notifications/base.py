@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Any, Mapping, MutableMapping, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Mapping, MutableMapping, Optional, Sequence, Tuple, Union
 
 from sentry import analytics
 from sentry.types.integrations import ExternalProviders
@@ -7,6 +7,12 @@ from sentry.utils.http import absolute_uri
 
 if TYPE_CHECKING:
     from sentry.models import Organization, Project, Team, User
+
+
+class MessageAction:
+    def __init__(self, label: str, url: str) -> None:
+        self.label = label
+        self.url = url
 
 
 class BaseNotification(abc.ABC):
@@ -54,6 +60,9 @@ class BaseNotification(abc.ABC):
     def get_message_description(self) -> Any:
         context = getattr(self, "context", None)
         return context["text_description"] if context else None
+
+    def get_message_actions(self) -> Sequence[MessageAction]:
+        return []
 
     def get_type(self) -> str:
         raise NotImplementedError
