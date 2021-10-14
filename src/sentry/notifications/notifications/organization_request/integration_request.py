@@ -6,7 +6,7 @@ from sentry.notifications.notifications.organization_request.base import (
     OrganizationRequestNotification,
 )
 from sentry.plugins.base import plugins
-from sentry.templatetags.sentry_helpers import absolute_uri
+from sentry.utils.http import absolute_uri
 
 if TYPE_CHECKING:
     from sentry.models import Organization, Team, User

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Mapping, MutableMapping, Union
 from django.urls import reverse
 
 from sentry import features
+from sentry.models import NotificationSetting
 from sentry.notifications.notifications.base import BaseNotification
 from sentry.notifications.notify import notification_providers
 from sentry.notifications.types import NotificationSettingTypes
@@ -12,7 +13,7 @@ from sentry.types.integrations import ExternalProviders
 from sentry.utils.http import absolute_uri
 
 if TYPE_CHECKING:
-    from sentry.models import NotificationSetting, Organization, Team, User
+    from sentry.models import Organization, Team, User
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class OrganizationRequestNotification(BaseNotification, abc.ABC):
         }
 
     def get_reference(self) -> Any:
-        raise self.organization
+        return self.organization
 
     def record_notification_sent(
         self, recipient: Union["Team", "User"], provider: ExternalProviders, **kwargs: Any
@@ -66,7 +67,7 @@ class OrganizationRequestNotification(BaseNotification, abc.ABC):
 
         return {
             provider: _
-            for provider, _ in notification_settings_by_provider
+            for provider, _ in notification_settings_by_provider.items()
             if provider in available_providers
         }
 

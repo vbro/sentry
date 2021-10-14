@@ -1001,6 +1001,7 @@ SENTRY_FEATURES = {
     # Temporary safety measure, turned on for specific orgs only if
     # absolutely necessary, to be removed shortly
     "organizations:slack-allow-workspace": False,
+    "organizations:slack-requests": False,
     # Enable data forwarding functionality for organizations.
     "organizations:data-forwarding": True,
     # Enable readonly dashboards
