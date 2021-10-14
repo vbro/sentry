@@ -40,6 +40,7 @@ class SlackNotificationsMessageBuilder(SlackMessageBuilder):
                 recipient=self.recipient,
             ).build()
 
+        # TODO MARCOS make a message builder registry?
         if isinstance(self.notification, NewProcessingIssuesActivityNotification):
             return self._build(
                 title=self.notification.get_title(),
