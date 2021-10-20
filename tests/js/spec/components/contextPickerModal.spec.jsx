@@ -1,4 +1,5 @@
 import {mountWithTheme} from 'sentry-test/enzyme';
+import {act} from 'sentry-test/reactTestingLibrary';
 import {selectByValue} from 'sentry-test/select-new';
 
 import ContextPickerModal from 'app/components/contextPickerModal';
@@ -12,7 +13,7 @@ describe('ContextPickerModal', function () {
   const onFinish = jest.fn();
 
   beforeEach(function () {
-    ProjectsStore.reset();
+    act(() => ProjectsStore.reset());
     MockApiClient.clearMockResponses();
     onFinish.mockReset();
 

@@ -1,4 +1,5 @@
 import {mountWithTheme} from 'sentry-test/enzyme';
+import {act} from 'sentry-test/reactTestingLibrary';
 
 import OrganizationStore from 'app/stores/organizationStore';
 import ProjectsStore from 'app/stores/projectsStore';
@@ -40,7 +41,7 @@ describe('OrganizationDetails', function () {
   });
 
   it('can fetch projects and teams', async function () {
-    ProjectsStore.reset();
+    act(() => ProjectsStore.reset());
     MockApiClient.addMockResponse({
       url: '/organizations/org-slug/',
       body: TestStubs.Organization({

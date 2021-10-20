@@ -1,6 +1,7 @@
 import {mountWithTheme} from 'sentry-test/enzyme';
 import {initializeOrg} from 'sentry-test/initializeOrg';
 import {mockRouterPush} from 'sentry-test/mockRouterPush';
+import {act} from 'sentry-test/reactTestingLibrary';
 
 import * as globalActions from 'app/actionCreators/globalSelection';
 import OrganizationActions from 'app/actions/organizationActions';
@@ -568,7 +569,7 @@ describe('GlobalSelectionHeader', function () {
       });
       wrapper.setProps({organization: updatedOrganization});
 
-      ProjectsStore.loadInitialData(updatedOrganization.projects);
+      act(() => ProjectsStore.loadInitialData(updatedOrganization.projects));
 
       expect(initialData.router.replace).toHaveBeenLastCalledWith(
         expect.objectContaining({
@@ -739,7 +740,7 @@ describe('GlobalSelectionHeader', function () {
         });
 
         // Force the withProjects HoC to re-render
-        ProjectsStore.trigger();
+        act(() => ProjectsStore.trigger());
 
         wrapper.update();
 
@@ -905,7 +906,7 @@ describe('GlobalSelectionHeader', function () {
         });
 
         // Force the withProjects HoC to re-render
-        ProjectsStore.trigger();
+        act(() => ProjectsStore.trigger());
 
         expect(initialData.router.replace).not.toHaveBeenCalled();
       });
@@ -928,7 +929,7 @@ describe('GlobalSelectionHeader', function () {
         });
 
         // Force the withProjects HoC to re-render
-        ProjectsStore.trigger();
+        act(() => ProjectsStore.trigger());
 
         expect(initialData.router.replace).toHaveBeenLastCalledWith({
           pathname: undefined,

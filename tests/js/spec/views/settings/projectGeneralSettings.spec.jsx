@@ -2,6 +2,7 @@ import {browserHistory} from 'react-router';
 
 import {mountWithTheme} from 'sentry-test/enzyme';
 import {mountGlobalModal} from 'sentry-test/modal';
+import {act} from 'sentry-test/reactTestingLibrary';
 import {selectByValue} from 'sentry-test/select-new';
 
 import {addErrorMessage, addSuccessMessage} from 'app/actionCreators/indicator';
@@ -250,7 +251,7 @@ describe('projectGeneralSettings', function () {
 
   it('changing project platform updates ProjectsStore', async function () {
     const params = {orgId: org.slug, projectId: project.slug};
-    ProjectsStore.loadInitialData([project]);
+    act(() => ProjectsStore.loadInitialData([project]));
     putMock = MockApiClient.addMockResponse({
       url: `/projects/${org.slug}/${project.slug}/`,
       method: 'PUT',
@@ -288,7 +289,7 @@ describe('projectGeneralSettings', function () {
 
   it('changing slug updates ProjectsStore', async function () {
     const params = {orgId: org.slug, projectId: project.slug};
-    ProjectsStore.loadInitialData([project]);
+    act(() => ProjectsStore.loadInitialData([project]));
     putMock = MockApiClient.addMockResponse({
       url: `/projects/${org.slug}/${project.slug}/`,
       method: 'PUT',
@@ -353,7 +354,7 @@ describe('projectGeneralSettings', function () {
   describe('Non-"save on blur" Field', function () {
     beforeEach(function () {
       const params = {orgId: org.slug, projectId: project.slug};
-      ProjectsStore.loadInitialData([project]);
+      act(() => ProjectsStore.loadInitialData([project]));
       putMock = MockApiClient.addMockResponse({
         url: `/projects/${org.slug}/${project.slug}/`,
         method: 'PUT',
